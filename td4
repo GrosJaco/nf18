@@ -1,0 +1,66 @@
+DROP TABLE IF EXISTS Dessert_site CASCADE;
+DROP TABLE IF EXISTS Dessert_hotel CASCADE;
+DROP TABLE IF EXISTS ActivitéParSite CASCADE;
+DROP TABLE IF EXISTS Restaurant CASCADE;
+DROP TABLE IF EXISTS Activité CASCADE;
+DROP TABLE IF EXISTS TypeCuisine CASCADE;
+DROP TABLE IF EXISTS Hotel CASCADE;
+DROP TABLE IF EXISTS SiteTouristique CASCADE;
+DROP TABLE IF EXISTS ArrêtDeBus CASCADE;
+
+CREATE TABLE ArrêtDeBus (
+    ligne INTEGER NOT NULL,
+    horaire TIME NOT NULL,
+    PRIMARY KEY (ligne, horaire)
+);
+
+CREATE TABLE SiteTouristique (
+    nom VARCHAR(255) PRIMARY KEY,
+    ancienneté INTEGER
+);
+
+CREATE TABLE Hotel (
+    nom VARCHAR(255) PRIMARY KEY,
+    adresse VARCHAR(255),
+    codePostal VARCHAR(10),
+    ville VARCHAR(100),
+    étoiles INTEGER
+);
+
+CREATE TABLE TypeCuisine (
+    label VARCHAR(100) PRIMARY KEY
+);
+
+CREATE TABLE Activité (
+    nom VARCHAR(255) PRIMARY KEY
+);
+
+CREATE TABLE Restaurant (
+    sk SERIAL PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    téléphone VARCHAR(10) UNIQUE,
+    type_cuisine VARCHAR(100) NOT NULL REFERENCES TypeCuisine(label),
+    hotel VARCHAR(255) REFERENCES Hotel(nom),
+    site VARCHAR(255) REFERENCES SiteTouristique(nom)
+);
+
+CREATE TABLE ActivitéParSite (
+    site VARCHAR(255) REFERENCES SiteTouristique(nom),
+    activité VARCHAR(255) REFERENCES Activité(nom),
+    PRIMARY KEY (site, activité)
+);
+
+CREATE TABLE Dessert_hotel (
+    bus_ligne INTEGER,
+    bus_horaire TIME,
+    hotel VARCHAR(255) REFERENCES Hotel(nom),
+    PRIMARY KEY (bus_ligne, bus_horaire, hotel),
+    FOREIGN KEY (bus_ligne, bus_horaire) REFERENCES ArrêtDeBus(ligne, horaire)
+);
+
+CREATE TABLE Dessert_site (
+    bus_ligne INTEGER,
+    bus_horaire TIME,
+    site VARCHAR(255) REFERENCES SiteTouristique(nom),
+    PRIMARY KEY (bus_ligne, bus_horaire, site),
+    FOREIGN KEY (bus_ligne, bus_horaire) REFERENCES ArrêtDeBus(ligne, horaire)
