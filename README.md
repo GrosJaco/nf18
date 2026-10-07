@@ -1,4 +1,4 @@
-# Projet NF18 - CrowdFundr (Groupe Gx)
+# Projet NF18 - CrowdFundr (Groupe G4)
 
 ## Contexte 
 Ce dépôt GitLab contient notre travail pour le projet de base de données (Dossier 2) réalisé dans le cadre de l'UV NF18.
