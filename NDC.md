@@ -5,9 +5,7 @@
 
 ### 1. Clarifications conceptuelles et prises de décision concernant les règles de gestion
 
-### 2. Classe / Entités et associations
-
-### Classes / Entités et Associations
+### 2. Classe / Entités et Associations
 
 | Classe / Entité | Attributs | Contraintes / Associations |
 | :--- | :--- | :--- |
@@ -27,3 +25,8 @@
 
 
 ### 3. Classes-association / Relations speciales
+
+| Association / Classe-association | Entités reliées | Attributs et Règles de gestion |
+| :--- | :--- | :--- |
+| Participation | Membre d'équipe (0..\*) et Projet (1..\*) | - Attribut : role (énumération : chefDeProjet, developpeur, designer, communityManager).<br>- Contrainte : un membre a un rôle unique sur un projet donné (unicité du couple membre / projet).<br>- Un projet a au moins un membre. |
+| Avis | Utilisateur (0..\*) et Projet (0..\*) | - Attributs : note (entier de 1 à 5), avis_textuel, date_avis.<br>- Contraintes :<br>&nbsp;&nbsp;1. Au plus un avis par utilisateur et par projet (unicité du couple utilisateur / projet).<br>&nbsp;&nbsp;2. note comprise entre 1 et 5. |
