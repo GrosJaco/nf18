@@ -5,6 +5,13 @@
 
 ### 1. Clarifications conceptuelles et prises de décision concernant les règles de gestion
 
+Le projet s'articule autour de plusieurs entités principales : les projets, les membres d'équipe, les utilisateurs, ainsi que des partenaires externes (ONG, incubateurs, transporteurs).
+
+- Distinction des soutiens : le terme « soutien » de l'énoncé recouvre deux notions que nous ne fusionnons pas.
+  - Le soutien financier représente uniquement les contributions financières apportées par les utilisateurs sur les différents projets de CrowdFundr.
+  - Le soutien moral / institutionnel désigne l'appui officiel des ONG à des projets à caractère social.
+- Incubateurs : les incubateurs sont des structures d'accompagnement indépendantes possédant leur propre budget. Un projet est accompagné par 0 ou 1 incubateur, et un incubateur peut accompagner 0, 1 ou plusieurs projets. Un incubateur n'est pas un contributeur financier.
+
 ### 2. Classe / Entités et Associations
 
 | Classe / Entité | Attributs | Contraintes / Associations |
