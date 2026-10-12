@@ -2,18 +2,15 @@
 
 **Auteurs :** Alexandre JEFFERY, Hugo GOSSE, Rafael REIS, Jaime GOMES-PARENTE
 
-### Organisation fonctionnelle de l'application
+### Organisation prévue de l'application Python
 
-CrowdFundr est une application de financement participatif organisée autour des projets. La présentation ci-dessous explicite l'organisation fonctionnelle retenue à partir des règles de gestion ; elle ne présume pas d'une architecture technique ni de droits d'accès non précisés dans l'énoncé.
+Nous prévoyons de développer une application Python avec une interface en console. Un menu principal permettra de consulter les projets, d'afficher leurs informations et leurs contreparties, d'enregistrer une contribution et de déposer un avis. Il permettra également d'exécuter les requêtes demandées dans l'énoncé et d'en afficher les résultats.
 
-- **Présentation des projets :** chaque projet regroupe ses informations générales (titre, description, objectif financier et date de lancement), son type (technologique, artistique ou social) et les informations propres à ce type. Le montant collecté permet de suivre l'avancement du financement par rapport à l'objectif.
-- **Équipe et accompagnement :** les membres et leur rôle sont associés à chaque projet. L'accompagnement éventuel par un incubateur est présenté séparément du soutien institutionnel des ONG, qui concerne uniquement les projets sociaux.
-- **Contributions et contreparties :** les contributions relient les utilisateurs aux projets financés. Lors d'une contribution, l'utilisateur peut choisir une contrepartie parmi celles proposées par le projet concerné. Les contreparties numériques comportent les informations sur le fichier ; les contreparties physiques comportent les informations de livraison et le transporteur partenaire associé.
-- **Avis sur les projets :** les avis sont rattachés à la fois à leur auteur et au projet évalué. Leur dépôt est conditionné à une contribution préalable de l'utilisateur sur ce projet, avec un seul avis par couple utilisateur / projet.
+Le programme sera réparti en plusieurs modules : `main.py` pour le lancement de l'application, les menus et la saisie des informations ; `projets.py` pour la consultation des projets, de leurs équipes, de leurs partenaires et de leurs contreparties ; `contributions.py` pour l'enregistrement des contributions ; `avis.py` pour le dépôt des avis ; et `requetes.py` pour les requêtes des besoins. Un module `base_donnees.py` centralisera la connexion à la base, l'exécution des requêtes SQL paramétrées et la gestion des transactions. Les paramètres de connexion seront séparés du code et les identifiants de connexion ne seront pas enregistrés dans les fichiers partagés du projet.
 
-Le parcours fonctionnel principal consiste à consulter un projet et ses contreparties, puis à effectuer une contribution avec ou sans contrepartie. Cette contribution entre dans le calcul du montant collecté et permet ensuite à l'utilisateur de déposer un avis sur le projet. Un utilisateur peut renouveler ses contributions sur un même projet.
+Pour les opérations liées à un utilisateur, son pseudo sera demandé et son existence sera vérifiée dans la base. Cette identification ne constitue pas un mécanisme d'authentification. L'application contrôlera les saisies et les règles de gestion avant l'enregistrement : montant strictement positif, contrepartie appartenant au projet choisi, note comprise entre 1 et 5, contribution préalable et absence d'avis existant pour le même utilisateur et le même projet. Les contraintes définies dans la base compléteront ces vérifications afin de préserver la cohérence des données. Une opération ne sera confirmée qu'après validation de la transaction ; en cas d'erreur, elle sera annulée et un message sera affiché. Le montant collecté sera calculé à partir des contributions lors de la consultation du projet.
 
-Les utilisateurs qui contribuent et déposent des avis sont distingués des membres d'équipe qui portent les projets. Les incubateurs, ONG et transporteurs sont décrits comme des partenaires ; aucun compte ni accès direct à l'application ne leur est attribué dans cette note, faute de précision dans l'énoncé.
+Cette organisation constitue une proposition pour le développement à venir ; l'application Python n'est pas encore réalisée.
 
 ### 1. Clarifications conceptuelles et prises de décision concernant les règles de gestion
 
