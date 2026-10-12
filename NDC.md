@@ -2,9 +2,7 @@
 
 **Auteurs :** Alexandre JEFFERY, Hugo GOSSE, Rafael REIS, Jaime GOMES-PARENTE
 
-### 1. Clarifications conceptuelles et prises de décision concernant les règles de gestion
-
-Le projet s'articule autour de plusieurs entités principales : les projets, les membres d'équipe, les utilisateurs, ainsi que des partenaires externes (ONG, incubateurs, transporteurs).
+### Clarifications conceptuelles et prises de décision concernant les règles de gestion
 
 - Distinction des soutiens : le terme « soutien » de l'énoncé recouvre deux notions que nous ne fusionnons pas.
   - Le soutien financier représente uniquement les contributions financières apportées par les utilisateurs sur les différents projets de CrowdFundr.
@@ -21,32 +19,4 @@ Le projet s'articule autour de plusieurs entités principales : les projets, les
   - Utilisateur : le pseudo, unique d'après l'énoncé, est retenu comme clé naturelle. L'adresse mail est également unique.
   - Transporteur : le nom est retenu comme clé, avec l'hypothèse que deux transporteurs partenaires n'ont pas le même nom.
   - ONG : le numéro d'enregistrement est la clé, comme le précise l'énoncé.
-  - Membre d'équipe, projet, incubateur, contribution et contrepartie : identifiant technique (id_membre, id_projet, id_incubateur, id_contribution, id_contrepartie), car l'énoncé ne fournit pas de clé naturelle.
 - Identification dans les requêtes des besoins : les membres d'équipe (Hideo Kojima, Yoji Shinkawa) sont retrouvés par leur nom et leur prénom, l'ONG (Amnesty International) par son nom, et le transporteur (Chronopost) par son nom.
-
-
-### 2. Classe / Entités et Associations
-
-| Classe / Entité | Attributs | Contraintes / Associations |
-| :--- | :--- | :--- |
-| Projet (abstraite) | - id_projet {clé}<br>- titre<br>- description<br>- objectif_financier (€)<br>- date_lancement<br>- /montant_collecte (€) {dérivé : somme des contributions} | - Héritage par partition (exclusion mutuelle et complétude) vers Projet technologique, Projet artistique et Projet social.<br>- Accompagné par 0 ou 1 Incubateur.<br>- Porté par 1 ou plusieurs Membres d'équipe (via classe-association Participation).<br>- Propose 0, 1 ou plusieurs Contreparties.<br>- Reçoit 0, 1 ou plusieurs Contributions financières.<br>- Reçoit 0, 1 ou plusieurs Avis. |
-| Projet technologique | - type_innovation | - Héritage de Projet. |
-| Projet artistique | - medium_principal | - Héritage de Projet. |
-| Projet social | - region_cible | - Héritage de Projet.<br>- Soutenu officiellement par 0, 1 ou plusieurs ONG. |
-| Incubateur | - id_incubateur {clé}<br>- nom<br>- annee_creation<br>- budget_accompagnement | - Accompagne 0, 1 ou plusieurs Projets. |
-| ONG | - numero_enregistrement {clé}<br>- nom<br>- pays_origine | - Soutient 0, 1 ou plusieurs Projets sociaux. |
-| Membre d'équipe | - id_membre {clé}<br>- nom<br>- prenom<br>- pays_residence<br>- date_naissance | - Participe à 0, 1 ou plusieurs Projets via la classe-association Participation. |
-| Utilisateur | - pseudo {clé}<br>- email {unique}<br>- nom<br>- date_naissance | - Effectue 0, 1 ou plusieurs Contributions financières.<br>- Dépose 0, 1 ou plusieurs Avis (sous condition de contribution préalable). |
-| Contribution financière | - id_contribution {clé}<br>- date_heure (DATETIME)<br>- montant (€) | - Réalisée par 1 Utilisateur sur 1 Projet.<br>- Plusieurs contributions possibles du même utilisateur sur le même projet (distinguées par date_heure).<br>- Liée à 0 ou 1 Contrepartie (qui doit appartenir au projet concerné).<br>- Contrainte : montant > 0. |
-| Contrepartie (abstraite) | - id_contrepartie {clé}<br>- libelle | - Proposée par exactement 1 Projet (Projet 1 — 0..* Contrepartie).<br>- Héritage par partition (exclusion mutuelle et complétude) vers Contrepartie numérique et Contrepartie physique.<br>- Peut être choisie dans 0, 1 ou plusieurs Contributions financières. |
-| Contrepartie numérique | - format_fichier<br>- taille_mo | - Héritage de Contrepartie. |
-| Contrepartie physique | - poids_estime<br>- frais_livraison | - Héritage de Contrepartie.<br>- Expédiée par exactement 1 Transporteur partenaire. |
-| Transporteur | - nom {clé}<br>- delai_livraison_moyen (jours) | - Expédie 0, 1 ou plusieurs Contreparties physiques. |
-
-
-### 3. Classes-association / Relations speciales
-
-| Association / Classe-association | Entités reliées | Attributs et Règles de gestion |
-| :--- | :--- | :--- |
-| Participation | Membre d'équipe (0..\*) et Projet (1..\*) | - Attribut : role (énumération : chefDeProjet, developpeur, designer, communityManager).<br>- Contrainte : un membre a un rôle unique sur un projet donné (unicité du couple membre / projet).<br>- Un projet a au moins un membre. |
-| Avis | Utilisateur (0..\*) et Projet (0..\*) | - Attributs : note (entier de 1 à 5), avis_textuel, date_avis.<br>- Contraintes :<br>&nbsp;&nbsp;1. Au plus un avis par utilisateur et par projet (unicité du couple utilisateur / projet).<br>&nbsp;&nbsp;2. note comprise entre 1 et 5. |
