@@ -1,7 +1,6 @@
 @startuml
 
 abstract class Projet {
-  id_projet : INT {key}
   titre : VARCHAR
   description : TEXT
   objectif_financier : DECIMAL
@@ -22,7 +21,6 @@ Projet <|-- ProjetArtistique
 Projet <|-- ProjetSocial
 
 class Incubateur {
-  id_incubateur : INT {key}
   nom : VARCHAR
   annee_creation : INT
   budget_accompagnement : DECIMAL
@@ -33,7 +31,6 @@ class ONG {
   pays_origine : VARCHAR
 }
 class MembreEquipe {
-  id_membre : INT {key}
   nom : VARCHAR
   prenom : VARCHAR
   pays_residence : VARCHAR
@@ -56,7 +53,6 @@ class Utilisateur {
   date_naissance : DATE
 }
 class Contribution {
-  id_contribution : INT {key}
   date_heure : DATETIME
   montant : DECIMAL
 }
@@ -67,7 +63,6 @@ class Avis {
 }
 
 abstract class Contrepartie {
-  id_contrepartie : INT {key}
   libelle : VARCHAR
 }
 class ContrepartieNumerique {
@@ -79,7 +74,6 @@ class ContrepartiePhysique {
   frais_livraison : DECIMAL
 }
 class Transporteur {
-  id_transporteur : INT {key}
   nom : VARCHAR {unique}
   delai_livraison_moyen : INT
 }
