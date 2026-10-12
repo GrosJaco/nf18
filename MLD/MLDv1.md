@@ -116,7 +116,7 @@ Les associations plusieurs-à-plusieurs deviennent les relations SOUTIEN, PARTIC
 
 L'attribut dérivé `/montant_collecte` ne figure pas dans la relation PROJET : sa valeur est calculée à partir des contributions.
 
-### 2. Contraintes
+2. Contraintes
 
 #### 2.1. Clés, références et domaines
 
@@ -140,25 +140,25 @@ L'attribut dérivé `/montant_collecte` ne figure pas dans la relation PROJET : 
 - Avis : pour chaque ligne d'AVIS, il doit exister au moins une ligne de CONTRIBUTION ayant le même pseudo et le même projet. Cette contribution doit déjà exister au moment du dépôt de l'avis. L'utilisateur peut avoir contribué sans avoir choisi de contrepartie.
 - Montant collecté : pour chaque projet, le montant collecté est la somme des montants de ses contributions. Il vaut 0 en l'absence de contribution. Un projet dépasse son objectif lorsque cette somme est strictement supérieure à son objectif financier.
 
-Les contraintes portant sur plusieurs lignes ou plusieurs relations (présence d'au moins un membre, contribution préalable à un avis, cohérence de la contrepartie et partitions d'héritage) doivent être vérifiées en complément des clés et des contraintes de domaine. Leur réalisation sera précisée lors du développement du modèle physique. Elles doivent rester respectées après les insertions, modifications et suppressions, au plus tard à la validation de la transaction.
+Les contraintes portant sur plusieurs lignes ou plusieurs relations — présence d'au moins un membre, contribution préalable à un avis, cohérence de la contrepartie et partitions d'héritage — doivent être vérifiées en complément des clés et des contraintes de domaine. Leur réalisation sera précisée lors du passage au modèle physique. Elles doivent rester respectées après les insertions, modifications et suppressions, au plus tard à la validation de la transaction.
 
-Les comptes de connexion et les droits administrateur / utilisateur seront gérés par l'application Python dans un fichier de configuration local. Ils n'ajoutent donc pas de relation au présent MLD. Le pseudo associé à chaque compte utilisateur devra correspondre à un utilisateur existant dans la base.
+Les comptes de connexion et les droits administrateur / utilisateur seront gérés par l'application Python dans un fichier de configuration local, conformément à l'organisation prévue. Ils n'ajoutent donc pas de relation au présent MLD. Le pseudo associé à chaque compte utilisateur devra correspondre à un utilisateur existant dans la base.
 
 ### 3. Héritage
 
 #### 3.1. Choix de traduction
 
-Nous avons choisi une traduction par référence, avec une relation pour la classe mère et une relation pour chaque classe fille. La clé primaire d'une relation fille est également une clé étrangère vers la relation mère. Une occurrence d'une classe fille est donc décrite par une ligne dans la relation mère et une ligne dans la relation fille correspondante.
+Nous avons choisi de conserver une table pour la classe mère et une table pour chaque classe fille. Les informations communes sont enregistrées dans la table mère, tandis que les informations propres à chaque type sont placées dans la table fille correspondante. Les deux tables sont reliées par le même identifiant, qui sert de clé primaire dans chacune d'elles et de clé étrangère dans la table fille.
 
-Pour les projets, les attributs communs sont placés dans PROJET. Les attributs propres aux types sont placés dans PROJET_TECHNOLOGIQUE, PROJET_ARTISTIQUE et PROJET_SOCIAL. Cette organisation permet aux contributions, aux participations, aux avis et aux contreparties de référencer un projet indépendamment de son type. Elle permet aussi au soutien des ONG de référencer uniquement les projets sociaux.
+Pour les projets, la table PROJET contient notamment le titre, la description et l'objectif financier. Les tables PROJET_TECHNOLOGIQUE, PROJET_ARTISTIQUE et PROJET_SOCIAL contiennent les informations propres à chaque type. Ce choix permet de rattacher les contributions, les avis et les membres d'équipe à une même table PROJET, quel que soit le type du projet. Le soutien des ONG est, lui, rattaché à PROJET_SOCIAL afin de respecter la règle selon laquelle seules les initiatives sociales peuvent en bénéficier.
 
-Pour les contreparties, les attributs communs et le rattachement au projet sont placés dans CONTREPARTIE. Les informations de fichier sont placées dans CONTREPARTIE_NUMERIQUE, et les informations de livraison ainsi que la référence au transporteur dans CONTREPARTIE_PHYSIQUE. Une contribution peut ainsi référencer une contrepartie indépendamment de son type.
+Nous appliquons le même principe aux contreparties. La table CONTREPARTIE contient les informations communes et le projet auquel elles appartiennent. Les tables CONTREPARTIE_NUMERIQUE et CONTREPARTIE_PHYSIQUE contiennent respectivement les informations sur le fichier et celles sur la livraison. Les contributions peuvent ainsi faire référence à une même table CONTREPARTIE, qu'il s'agisse d'une contrepartie numérique ou physique.
 
-Nous retenons ce choix pour conserver les attributs communs dans une seule relation et séparer les attributs propres à chaque type. Une traduction par une relation unique imposerait des attributs non applicables à certains types, comme le transporteur pour une contrepartie numérique. Une traduction avec uniquement les relations filles répéterait les attributs communs et compliquerait les références vers l'ensemble des projets ou des contreparties. La traduction retenue nécessite en revanche des jointures pour retrouver toutes les informations d'un objet et des contraintes supplémentaires pour garantir les partitions.
+Cette solution évite de répéter les informations communes dans les tables de chaque type. Elle évite aussi de regrouper dans une seule table des attributs qui ne concernent pas tous les types, comme les frais de livraison pour une contrepartie numérique. En contrepartie, il faut effectuer une jointure entre la table mère et la table fille pour obtenir toutes les informations d'un projet ou d'une contrepartie. Il faut également vérifier que chaque projet et chaque contrepartie appartiennent à un seul type, comme le précise la NDC.
 
 #### 3.2. Contraintes de partition
 
-La NDC précise une exclusion mutuelle et une complétude pour les deux héritages.
+Notre NDC précise une exclusion mutuelle et une complétude pour les deux héritages.
 
 - Projets : chaque identifiant présent dans PROJET doit apparaître dans exactement une des relations PROJET_TECHNOLOGIQUE, PROJET_ARTISTIQUE ou PROJET_SOCIAL. Il ne peut être absent des trois relations ni présent dans plusieurs d'entre elles.
 - Contreparties : chaque identifiant présent dans CONTREPARTIE doit apparaître dans exactement une des relations CONTREPARTIE_NUMERIQUE ou CONTREPARTIE_PHYSIQUE. Il ne peut être absent des deux relations ni présent dans les deux.
