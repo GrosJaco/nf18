@@ -1,14 +1,10 @@
-# Modèle logique de données (MLD) — V2
+# Modèle logique de données (MLD)
 
 **Auteurs :** Alexandre JEFFERY, Hugo GOSSE, Rafael REIS, Jaime GOMES-PARENTE
 
 ### 1. Relations
 
-**Notation :** `#` précède chaque attribut appartenant à la clé primaire. Lorsqu'une relation comporte plusieurs attributs marqués `#`, ils forment ensemble une seule clé primaire composée ; ils ne sont pas uniques individuellement. `=> TABLE(attribut)` indique une clé étrangère vers l'attribut de la table référencée. Un attribut peut être à la fois clé primaire et clé étrangère. `UNIQUE` indique une unicité supplémentaire et `NULL autorisé` une association facultative. Nous adoptons cette convention pour ce document ; elle pourra être adaptée à la notation exacte demandée en cours.
-
-Au niveau logique, nous introduisons des identifiants pour les projets, les membres d'équipe, les incubateurs et les contreparties, car aucune clé naturelle n'est précisée pour ces entités. Nous ne supposons donc pas que les titres, les noms ou les libellés sont uniques. Ces identifiants servent à établir les références entre les relations ; ils ne constituent pas de nouvelles règles de gestion à ajouter à la NDC.
-
-Pour les contributions, nous retenons la clé composée du pseudo de l'utilisateur, du projet et de la date et heure, conformément à la distinction des contributions précisée dans la NDC.
+**Notation :** `#` précède chaque attribut appartenant à la clé primaire. Lorsqu'une relation comporte plusieurs attributs marqués `#`, ils forment ensemble une seule clé primaire composée ; ils ne sont pas uniques individuellement. `=> TABLE(attribut)` indique une clé étrangère vers l'attribut de la table référencée. `UNIQUE` indique une unicité supplémentaire et `NULL autorisé` une association facultative.
 
 ```text
 INCUBATEUR(
@@ -116,7 +112,7 @@ AVIS(
 )
 ```
 
-Les associations plusieurs-à-plusieurs deviennent les relations SOUTIEN, PARTICIPATION et AVIS. Les associations un-à-plusieurs sont traduites par une clé étrangère du côté « plusieurs ». La classe-association Participation conserve son attribut `role`, et la classe-association Avis conserve ses trois attributs.
+Les associations plusieurs-à-plusieurs deviennent les relations SOUTIEN, PARTICIPATION et AVIS. Les associations un-à-plusieurs sont traduites par une clé étrangère du côté « * ». La classe-association Participation conserve son attribut `role`, et la classe-association Avis conserve ses trois attributs.
 
 L'attribut dérivé `/montant_collecte` ne figure pas dans la relation PROJET : sa valeur est calculée à partir des contributions.
 
@@ -144,15 +140,15 @@ L'attribut dérivé `/montant_collecte` ne figure pas dans la relation PROJET : 
 - Avis : pour chaque ligne d'AVIS, il doit exister au moins une ligne de CONTRIBUTION ayant le même pseudo et le même projet. Cette contribution doit déjà exister au moment du dépôt de l'avis. L'utilisateur peut avoir contribué sans avoir choisi de contrepartie.
 - Montant collecté : pour chaque projet, le montant collecté est la somme des montants de ses contributions. Il vaut 0 en l'absence de contribution. Un projet dépasse son objectif lorsque cette somme est strictement supérieure à son objectif financier.
 
-Les contraintes portant sur plusieurs lignes ou plusieurs relations — présence d'au moins un membre, contribution préalable à un avis, cohérence de la contrepartie et partitions d'héritage — doivent être vérifiées en complément des clés et des contraintes de domaine. Leur réalisation sera précisée lors du passage au modèle physique. Elles doivent rester respectées après les insertions, modifications et suppressions, au plus tard à la validation de la transaction.
+Les contraintes portant sur plusieurs lignes ou plusieurs relations (présence d'au moins un membre, contribution préalable à un avis, cohérence de la contrepartie et partitions d'héritage) doivent être vérifiées en complément des clés et des contraintes de domaine. Leur réalisation sera précisée lors du développement du modèle physique. Elles doivent rester respectées après les insertions, modifications et suppressions, au plus tard à la validation de la transaction.
 
-Les comptes de connexion et les droits administrateur / utilisateur seront gérés par l'application Python dans un fichier de configuration local, conformément à l'organisation prévue. Ils n'ajoutent donc pas de relation au présent MLD. Le pseudo associé à chaque compte utilisateur devra correspondre à un utilisateur existant dans la base.
+Les comptes de connexion et les droits administrateur / utilisateur seront gérés par l'application Python dans un fichier de configuration local. Ils n'ajoutent donc pas de relation au présent MLD. Le pseudo associé à chaque compte utilisateur devra correspondre à un utilisateur existant dans la base.
 
 ### 3. Héritage
 
 #### 3.1. Choix de traduction
 
-Nous retenons une traduction par référence, avec une relation pour la classe mère et une relation pour chaque classe fille. La clé primaire d'une relation fille est également une clé étrangère vers la relation mère. Une occurrence d'une classe fille est donc décrite par une ligne dans la relation mère et une ligne dans la relation fille correspondante.
+Nous avons choisi une traduction par référence, avec une relation pour la classe mère et une relation pour chaque classe fille. La clé primaire d'une relation fille est également une clé étrangère vers la relation mère. Une occurrence d'une classe fille est donc décrite par une ligne dans la relation mère et une ligne dans la relation fille correspondante.
 
 Pour les projets, les attributs communs sont placés dans PROJET. Les attributs propres aux types sont placés dans PROJET_TECHNOLOGIQUE, PROJET_ARTISTIQUE et PROJET_SOCIAL. Cette organisation permet aux contributions, aux participations, aux avis et aux contreparties de référencer un projet indépendamment de son type. Elle permet aussi au soutien des ONG de référencer uniquement les projets sociaux.
 
