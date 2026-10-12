@@ -2,7 +2,22 @@
 
 **Auteurs :** Alexandre JEFFERY, Hugo GOSSE, Rafael REIS, Jaime GOMES-PARENTE
 
-### Clarifications conceptuelles et prises de décision concernant les règles de gestion
+### Organisation fonctionnelle de l'application
+
+CrowdFundr est une application de financement participatif organisée autour des projets. La présentation ci-dessous explicite l'organisation fonctionnelle retenue à partir des règles de gestion ; elle ne présume pas d'une architecture technique ni de droits d'accès non précisés dans l'énoncé.
+
+- **Présentation des projets :** chaque projet regroupe ses informations générales (titre, description, objectif financier et date de lancement), son type (technologique, artistique ou social) et les informations propres à ce type. Le montant collecté permet de suivre l'avancement du financement par rapport à l'objectif.
+- **Équipe et accompagnement :** les membres et leur rôle sont associés à chaque projet. L'accompagnement éventuel par un incubateur est présenté séparément du soutien institutionnel des ONG, qui concerne uniquement les projets sociaux.
+- **Contributions et contreparties :** les contributions relient les utilisateurs aux projets financés. Lors d'une contribution, l'utilisateur peut choisir une contrepartie parmi celles proposées par le projet concerné. Les contreparties numériques comportent les informations sur le fichier ; les contreparties physiques comportent les informations de livraison et le transporteur partenaire associé.
+- **Avis sur les projets :** les avis sont rattachés à la fois à leur auteur et au projet évalué. Leur dépôt est conditionné à une contribution préalable de l'utilisateur sur ce projet, avec un seul avis par couple utilisateur / projet.
+
+Le parcours fonctionnel principal consiste à consulter un projet et ses contreparties, puis à effectuer une contribution avec ou sans contrepartie. Cette contribution entre dans le calcul du montant collecté et permet ensuite à l'utilisateur de déposer un avis sur le projet. Un utilisateur peut renouveler ses contributions sur un même projet.
+
+Les utilisateurs qui contribuent et déposent des avis sont distingués des membres d'équipe qui portent les projets. Les incubateurs, ONG et transporteurs sont décrits comme des partenaires ; aucun compte ni accès direct à l'application ne leur est attribué dans cette note, faute de précision dans l'énoncé.
+
+### 1. Clarifications conceptuelles et prises de décision concernant les règles de gestion
+
+Le projet s'articule autour de plusieurs entités principales : les projets, les membres d'équipe, les utilisateurs, ainsi que des partenaires externes (ONG, incubateurs, transporteurs).
 
 - Distinction des soutiens : le terme « soutien » de l'énoncé recouvre deux notions que nous ne fusionnons pas.
   - Le soutien financier représente uniquement les contributions financières apportées par les utilisateurs sur les différents projets de CrowdFundr.
@@ -20,3 +35,30 @@
   - Transporteur : le nom est retenu comme clé, avec l'hypothèse que deux transporteurs partenaires n'ont pas le même nom.
   - ONG : le numéro d'enregistrement est la clé, comme le précise l'énoncé.
 - Identification dans les requêtes des besoins : les membres d'équipe (Hideo Kojima, Yoji Shinkawa) sont retrouvés par leur nom et leur prénom, l'ONG (Amnesty International) par son nom, et le transporteur (Chronopost) par son nom.
+
+
+### 2. Classe / Entités et Associations
+
+| Classe / Entité | Attributs | Contraintes / Associations |
+| :--- | :--- | :--- |
+| Projet (abstraite) | - titre<br>- description<br>- objectif_financier (€)<br>- date_lancement<br>- /montant_collecte (€) {dérivé : somme des contributions} | - Héritage par partition (exclusion mutuelle et complétude) vers Projet technologique, Projet artistique et Projet social.<br>- Accompagné par 0 ou 1 Incubateur.<br>- Porté par 1 ou plusieurs Membres d'équipe (via classe-association Participation).<br>- Propose 0, 1 ou plusieurs Contreparties.<br>- Reçoit 0, 1 ou plusieurs Contributions financières.<br>- Reçoit 0, 1 ou plusieurs Avis. |
+| Projet technologique | - type_innovation | - Héritage de Projet. |
+| Projet artistique | - medium_principal | - Héritage de Projet. |
+| Projet social | - region_cible | - Héritage de Projet.<br>- Soutenu officiellement par 0, 1 ou plusieurs ONG. |
+| Incubateur | - nom<br>- annee_creation<br>- budget_accompagnement | - Accompagne 0, 1 ou plusieurs Projets. |
+| ONG | - numero_enregistrement {clé}<br>- nom<br>- pays_origine | - Soutient 0, 1 ou plusieurs Projets sociaux. |
+| Membre d'équipe | - nom<br>- prenom<br>- pays_residence<br>- date_naissance | - Participe à 0, 1 ou plusieurs Projets via la classe-association Participation. |
+| Utilisateur | - pseudo {clé}<br>- email {unique}<br>- nom<br>- date_naissance | - Effectue 0, 1 ou plusieurs Contributions financières.<br>- Dépose 0, 1 ou plusieurs Avis (sous condition de contribution préalable). |
+| Contribution financière | - date_heure (DATETIME)<br>- montant (€) | - Réalisée par 1 Utilisateur sur 1 Projet.<br>- Plusieurs contributions possibles du même utilisateur sur le même projet (distinguées par date_heure).<br>- Liée à 0 ou 1 Contrepartie (qui doit appartenir au projet concerné).<br>- Contrainte : montant > 0. |
+| Contrepartie (abstraite) | - libelle | - Proposée par exactement 1 Projet (Projet 1 — 0..* Contrepartie).<br>- Héritage par partition (exclusion mutuelle et complétude) vers Contrepartie numérique et Contrepartie physique.<br>- Peut être choisie dans 0, 1 ou plusieurs Contributions financières. |
+| Contrepartie numérique | - format_fichier<br>- taille_mo | - Héritage de Contrepartie. |
+| Contrepartie physique | - poids_estime<br>- frais_livraison | - Héritage de Contrepartie.<br>- Expédiée par exactement 1 Transporteur partenaire. |
+| Transporteur | - nom {clé}<br>- delai_livraison_moyen (jours) | - Expédie 0, 1 ou plusieurs Contreparties physiques. |
+
+
+### 3. Classes-association / Relations speciales
+
+| Association / Classe-association | Entités reliées | Attributs et Règles de gestion |
+| :--- | :--- | :--- |
+| Participation | Membre d'équipe (0..\*) et Projet (1..\*) | - Attribut : role (énumération : chefDeProjet, developpeur, designer, communityManager).<br>- Contrainte : un membre a un rôle unique sur un projet donné (unicité du couple membre / projet).<br>- Un projet a au moins un membre. |
+| Avis | Utilisateur (0..\*) et Projet (0..\*) | - Attributs : note (entier de 1 à 5), avis_textuel, date_avis.<br>- Contraintes :<br>&nbsp;&nbsp;1. Au plus un avis par utilisateur et par projet (unicité du couple utilisateur / projet).<br>&nbsp;&nbsp;2. note comprise entre 1 et 5. |
